@@ -1,0 +1,263 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Schema",
+	"type": "object",
+	"properties": {
+		"name": {
+			"type":"string",
+			"description" : "Naziv seme"
+		},
+		"rootPackage":{
+			"$ref": "#/definitions/package" 
+		}
+		
+	},
+	"definitions":{
+		"package":{
+			"type": "object",
+		    "properties":{
+		    	"packageName":{ 
+		    		"type": "string" 
+		    	},
+		        "children": {
+		          "type": "array",
+		          "items":{ 
+		          	"anyOf":[
+		          		{"$ref": "#/definitions/package"},{"$ref": "#/definitions/table"}
+		          	] 
+		          },
+        		  "uniqueItems": true
+      			}
+      		},
+      		"required": ["packageName","children"],
+      		"additionalProperties": false
+		},
+		"table": {
+				"title": "Table",
+				"type": "object",
+				"properties": {
+					"tableName": {
+						"type": "string",
+						"description": "Table name",
+						"minLength": 1
+					},
+					"code": {
+						"type": "string",
+						"description": "Table code",
+						"minLength": 1
+					},
+					"attributes": {
+						"type": "array",
+						"items": {
+							"title": "Attribute",
+							"type": "object",
+							"description": "Attribute",
+							"properties": {
+								"name": {
+									"type": "string",
+									"description": "Attribute name"
+								},
+								"code": {
+									"type": "string",
+									"description": "Attribute code"
+								},
+								"type": {	
+										"title": "AttributeType",
+
+										"oneOf":[	
+										{	
+											"type":"object",	
+											"properties": {
+												"typeName": {
+													"type": "string",
+													"pattern": "varchar"
+												},
+												"maxLength": {
+													"type": "number",
+													"multipleOf": 1.0
+												},
+												"preDef": {
+													"type": "string"
+												},
+												"req": {
+													"type": "boolean"
+												},
+												"unique": {
+													"type": "boolean"
+												}
+											},
+											"required": ["typeName","maxLength"],
+											"additionalProperties": false
+										},
+										
+										{	
+											"type":"object",	
+											"properties": {
+												"typeName": {
+													"type": "string",
+													"pattern": "char"
+												},
+												"length": {
+													"type": "number",
+													"multipleOf": 1.0
+												},
+												"preDef": {
+													"type": "string"
+												},
+												"req": {
+													"type": "boolean"
+												},
+												"unique": {
+													"type": "boolean"
+												}
+											},
+											"required": ["typeName","length"],
+											"additionalProperties": false
+										},
+											
+										{
+											"type":"object",	
+											"properties": {
+												"typeName": {
+													"type": "string",
+													"pattern": "double"
+												},
+												"decimal": {
+													"type": "number",
+													"multipleOf": 1.0
+												},
+												"preDef": {
+													"type": "number"
+												},
+												"req": {
+													"type": "boolean"
+												},
+												"unique": {
+													"type": "boolean"
+												}
+											},
+											"required": ["typeName","decimal"],
+											"additionalProperties": false
+										},
+										
+										{
+											"type":"object",	
+											"properties": {
+												"typeName": {
+													"type": "string",
+													"pattern": "int"
+												},
+												"preDef": {
+													"type": "number",
+													"multipleOf": 1.0
+												},
+												"req": {
+													"type": "boolean"
+												},
+												"unique": {
+													"type": "boolean"
+												}
+											},
+											"required": ["typeName"],
+											"additionalProperties": false
+										},
+											
+										{
+											"type":"object",	
+											"properties": {
+												"typeName": {
+													"type": "string",
+													"pattern": "date"
+												},
+												"preDef": {
+													"type": "string",
+													"pattern" : "([0-2][0-9]|(3)[0-1])(\\.)(((0)[0-9])|((1)[0-2]))(\\.)\\d{4}"
+												},
+												"req": {
+													"type": "boolean"
+												},
+												"unique": {
+													"type": "boolean"
+												}
+											},
+											"required": ["typeName"],
+											"additionalProperties": false
+										},
+										
+										{
+											"type":"object",	
+											"properties": {
+												"typeName": {
+													"type": "string",
+													"pattern": "boolean"
+												},
+												"preDef": {
+													"type": "boolean"
+												}
+											},
+											"required": ["typeName"],
+											"additionalProperties": false
+										}										
+										
+										]
+									}
+							},
+									"required": ["name","code","type"],
+									"additionalProperties": false
+						},
+						"minItems": 1,
+						"uniqueItems": true
+					},
+					"primaryKey": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									},
+									"minItems": 1,
+									"uniqueItems": true
+					},
+					"foreignKeys": {
+						"type": "array",
+						"items": {
+							"title": "ForeignKey",
+							"type": "object",
+							"properties": {
+								"dependencyName": {
+									"type": "string"
+								},
+								"referencingAttr": {
+									"type": "array",
+									"description": "Attribute codes from this table",
+									"items": {
+										"type":"string"
+									},
+									"minItems":1,
+									"uniqueItems":true
+								},
+								"referencedTable": {
+									"type": "string",
+									"description": "Code of the referenced table"
+								},
+								"referencedAttr": {
+									"type": "array",
+									"description": "Attribute codes from the referenced table",
+									"items": {
+										"type":"string"
+									},
+									"minItems":1,
+									"uniqueItems":true
+								}
+							},
+							"required": ["dependencyName","referencingAttr","referencedTable","referencedAttr"],
+							"additionalProperties": false	
+						},
+						"uniqueItems": true
+					}
+				},
+				"required": ["tableName","code","attributes","primaryKey"],
+				"additionalProperties": false
+			}
+		},
+ 	"required":["name","rootPackage"],
+ 	"additionalProperties": false
+}
